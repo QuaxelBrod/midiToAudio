@@ -11,6 +11,11 @@ services:
       # Configuration (.env file is read by dotenv in the application)
       - ./config/.env:/app/.env:ro
 
+      # Debugging & Development (mount source code and debug scripts)
+      - ./src:/app/src
+      - ./debug-tcp.sh:/app/debug-tcp.sh:ro
+      - ./debug-container.sh:/app/debug-container.sh:ro
+
       # Output directory for generated MP3s
       - ./data/output:/app/output
 
