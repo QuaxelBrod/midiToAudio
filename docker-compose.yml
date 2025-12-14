@@ -39,8 +39,8 @@ services:
           memory: 2G
 
     # Network configuration (if MongoDB is in same compose)
-    # networks:
-    #   - midi-network
+    networks:
+      - midi-network
 
     # Logging configuration
     logging:
