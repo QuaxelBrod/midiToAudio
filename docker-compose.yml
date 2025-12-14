@@ -58,6 +58,6 @@ volumes:
     driver: local
 
 # Optional: if MongoDB runs in same stack
-# networks:
-#   midi-network:
-#     driver: bridge
+networks:
+  midi-network:
+    driver: bridge
