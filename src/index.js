@@ -17,27 +17,37 @@ console.log('CWD:', process.cwd());
  * Main entry point
  */
 async function main() {
+    console.log('>>> Entering main()');
     try {
         // Validate configuration
+        console.log('>>> Before validateConfig');
         logger.info('Validating configuration...');
         validateConfig();
+        console.log('>>> After validateConfig - SUCCESS');
 
         // Connect to MongoDB
+        console.log('>>> Before MongoDB connect');
         logger.info('Connecting to database...');
         await connect();
+        console.log('>>> After MongoDB connect - SUCCESS');
 
         // Run CLI
+        console.log('>>> Before runCli');
         await runCli();
+        console.log('>>> After runCli - SUCCESS');
 
     } catch (error) {
+        console.error('>>> CAUGHT ERROR:', error.message);
         logger.error({ error: error.message, stack: error.stack }, 'Application error');
         process.exit(1);
     } finally {
         // Cleanup
+        console.log('>>> Cleanup starting');
         logger.info('Cleaning up resources...');
         await closeSynthesizer();
         await disconnect();
         cleanupAllTempFiles();
+        console.log('>>> Cleanup done');
     }
 }
 
