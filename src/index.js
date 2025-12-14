@@ -7,6 +7,12 @@ import { closeSynthesizer } from './processors/midiRenderer.js';
 import { cleanupAllTempFiles } from './utils/tempFiles.js';
 import logger from './utils/logger.js';
 
+
+console.log('=== STARTING APP ===');
+console.log('Node:', process.version);
+console.log('CWD:', process.cwd());
+
+
 /**
  * Main entry point
  */
