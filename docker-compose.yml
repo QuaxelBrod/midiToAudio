@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   midi-converter:
     build:
@@ -8,13 +6,9 @@ services:
     container_name: midi-to-audio-converter
     restart: unless-stopped
 
-    # Environment configuration
-    env_file:
-      - .env
-
     # Volumes for persistence
     volumes:
-      # Configuration
+      # Configuration (.env file is read by dotenv in the application)
       - ./config/.env:/app/.env:ro
 
       # Output directory for generated MP3s
@@ -49,9 +43,10 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    # Command override (optional)
-    # command: ["node", "src/index.js", "--limit", "1000", "--concurrency", "8"]
 
+    # Start processing all MIDI files (no limit)
+    # Concurrency is configured in config/.env (CONCURRENCY)
+    command: [ "node", "src/index.js", "--concurrency", "8" ]
     # Named volumes
 volumes:
   temp-data:
