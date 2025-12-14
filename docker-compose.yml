@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  midi-converter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: midi-to-audio-converter
+    restart: unless-stopped
+
+    # Environment configuration
+    env_file:
+      - .env
+
+    # Volumes for persistence
+    volumes:
+      # Configuration
+      - ./config/.env:/app/.env:ro
+
+      # Output directory for generated MP3s
+      - ./data/output:/app/output
+
+      # Soundfont storage
+      - ./data/soundfonts:/app/soundfonts:ro
+
+      # Logs
+      - ./data/logs:/app/logs
+
+      # Temporary files (optional, can use tmpfs for performance)
+      - temp-data:/app/temp
+
+    # Resource limits (adjust based on your server)
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 4G
+        reservations:
+          cpus: '4'
+          memory: 2G
+
+    # Network configuration (if MongoDB is in same compose)
+    # networks:
+    #   - midi-network
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Command override (optional)
+    # command: ["node", "src/index.js", "--limit", "1000", "--concurrency", "8"]
+
+    # Named volumes
+volumes:
+  temp-data:
+    driver: local
+
+# Optional: if MongoDB runs in same stack
+# networks:
+#   midi-network:
+#     driver: bridge
