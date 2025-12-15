@@ -51,7 +51,7 @@ services:
 
     # Start processing all MIDI files (no limit)
     # Concurrency is configured here (overrides .env)
-    command: [ "node", "src/index.js", "--concurrency", "4" ]
+    command: [ "node", "src/index.js", "--concurrency", "1" ]
     # Named volumes
 volumes:
   temp-data:

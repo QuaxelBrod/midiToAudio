@@ -53,10 +53,11 @@ export async function renderMidiToWav(midiBuffer, outputPath) {
 
         await new Promise((resolve, reject) => {
             // FluidSynth command: fluidsynth -F output.wav soundfont.sf2 input.mid
+            // FluidSynth command: fluidsynth -F output.wav -a file -m file soundfont.sf2 input.mid
             const args = [
                 '-F', outputPath,              // Fast render to file
-                '-o', 'audio.driver=file',     // Force file driver (prevent ALSA/Jack errors)
-                '-o', 'midi.driver=file',      // Force midi file driver
+                '-a', 'file',                  // Audio driver: file (no hardware)
+                '-m', 'file',                  // MIDI driver: file (no hardware)
                 '-g', '1.0',                   // Gain
                 '-r', config.audio.sampleRate.toString(),  // Sample rate
                 '-T', 'wav',                   // Output type
