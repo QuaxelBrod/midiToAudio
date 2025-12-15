@@ -49,8 +49,8 @@ services:
         max-size: "10m"
         max-file: "3"
 
-    # Start processing with 6 concurrent workers
-    command: [ "node", "src/index.js", "--concurrency", "6" ]
+    # Start processing (concurrency controlled by .env, default 4)
+    command: [ "node", "src/index.js" ]
     # Named volumes
 volumes:
   temp-data:
