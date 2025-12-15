@@ -68,6 +68,10 @@ export async function processBatch({
     filter = {},
     concurrency = config.processing.concurrency
 } = {}) {
+    console.log('Processing batch with limit:', limit);
+    console.log('Processing batch with filter:', filter);
+    console.log('Processing batch with concurrency:', concurrency);
+
     const stats = new ProcessingStats();
 
     try {
