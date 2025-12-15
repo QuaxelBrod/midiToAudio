@@ -32,11 +32,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '7.5' # Allow nearly full CPU usage (leave 0.5 for OS)
-          memory: 16G # Generous limit (system has 32GB)
+          cpus: '7' # Allow nearly full CPU usage (leave 0.5 for OS)
+          memory: 14G # Generous limit (system has 32GB)
         reservations:
           cpus: '6' # Guarantee 1 core per process
-          memory: 8G # Guarantee plenty of RAM
+          memory: 12G # Guarantee plenty of RAM
 
     # Network configuration (if MongoDB is in same compose)
     networks:
