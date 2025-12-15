@@ -4,7 +4,7 @@ import { runCli } from './cli.js';
 import { validateConfig } from './config.js';
 import { connect, disconnect } from './database/mongodb.js';
 import { closeSynthesizer } from './processors/midiRenderer.js';
-import { cleanupAllTempFiles } from './utils/tempFiles.js';
+import { cleanupAllTempFiles, emptyTempDirectory } from './utils/tempFiles.js';
 import logger from './utils/logger.js';
 
 
@@ -24,6 +24,10 @@ async function main() {
         logger.info('Validating configuration...');
         validateConfig();
         console.log('>>> After validateConfig - SUCCESS');
+
+        // Clean temp directory on startup
+        logger.info('Cleaning temporary directory...');
+        emptyTempDirectory();
 
         // Connect to MongoDB
         console.log('>>> Before MongoDB connect');

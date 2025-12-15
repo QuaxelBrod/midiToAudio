@@ -58,6 +58,21 @@ export function cleanupAllTempFiles() {
 }
 
 /**
+ * Empty the entire temporary directory (useful on startup)
+ */
+export function emptyTempDirectory() {
+    try {
+        ensureTempDirectory();
+        // Since we are using rmSync from fs, we need to import readdirSync too or just remove the dir and recreate
+        rmSync(config.output.tempDirectory, { recursive: true, force: true });
+        ensureTempDirectory();
+        logger.info('Emptied temp directory on startup');
+    } catch (error) {
+        logger.warn({ error: error.message }, 'Failed to empty temp directory');
+    }
+}
+
+/**
  * Cleanup handler for process exit
  */
 function exitHandler() {
