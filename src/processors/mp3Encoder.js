@@ -13,23 +13,25 @@ const logger = createLogger({ module: 'mp3Encoder' });
 function extractMetadata(document) {
     // Try different metadata sources in priority order
     const artist =
+        document.redacted?.artist ||
         document.musicLLM?.artist ||
         document.musicbrainz?.top?.artist ||
-        document.redacted?.artist ||
         document.musicbrainz?.oldest?.artist ||
         'Unknown Artist';
 
     const title =
+        document.redacted?.title ||
         document.musicLLM?.title ||
         document.musicbrainz?.top?.title ||
-        document.redacted?.title ||
         document.musicbrainz?.oldest?.title ||
-        document.midifile?.fileName?.replace(/\.mid$/i, '') ||
+        (document.midifile?.fileName ? document.midifile.fileName.toString().replace(/\.mid$/i, '') : undefined) ||
         'Unknown Title';
 
     const album =
-        document.musicLLM?.album ||
         document.redacted?.album ||
+        document.musicLLM?.album ||
+        document.musicbrainz?.top?.album ||
+        document.musicbrainz?.oldest?.album ||
         'Unknown Album';
 
     // Extract year from firstReleaseDate
@@ -45,9 +47,9 @@ function extractMetadata(document) {
 
     // Extract genre from tags
     const tags =
+        document.redacted?.tags ||
         document.musicbrainz?.top?.tags ||
         document.musicbrainz?.oldest?.tags ||
-        document.redacted?.tags ||
         [];
 
     const genre = tags.length > 0 ? tags[0].name : undefined;

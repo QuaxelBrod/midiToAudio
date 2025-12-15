@@ -219,6 +219,28 @@ LOG_LEVEL=debug
 
 ## Troubleshooting
 
+### Reset der Datenbank
+
+```bash
+sudo docker compose run --rm midi-converter node -e "
+require('dotenv').config({ path: '/app/.env' });
+const { MongoClient } = require('mongodb');
+(async () => {
+    const uri = process.env.MONGODB_URI;
+    if (!uri) throw new Error('MONGODB_URI missing');
+    
+    const client = new MongoClient(uri);
+    await client.connect();
+    const db = client.db(process.env.MONGODB_DATABASE);
+    const col = db.collection(process.env.MONGODB_COLLECTION);
+    
+    const result = await col.updateMany({}, { \$unset: { 'midiToAudioProcessing': '' } });
+    
+    console.log('Reset ' + result.modifiedCount + ' documents.');
+    await client.close();
+})();
+"
+
 ### Fehler: "Soundfont file not found"
 - Stellen Sie sicher, dass `SOUNDFONT_PATH` in `.env` auf eine existierende SF2/SF3-Datei zeigt
 
@@ -241,3 +263,4 @@ LOG_LEVEL=debug
 ## Lizenz
 
 MIT
+

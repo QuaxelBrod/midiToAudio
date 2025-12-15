@@ -10,24 +10,24 @@ let db = null;
  * @returns {Promise<Object>} Database instance
  */
 export async function connect() {
-    console.log('>>> DB: connect() called');
+    // console.log('>>> DB: connect() called');
     if (db) {
-        console.log('>>> DB: Already connected, returning db');
+        // console.log('>>> DB: Already connected, returning db');
         return db;
     }
 
     try {
-        console.log('>>> DB: accessing config.mongodb.uri');
+        // console.log('>>> DB: accessing config.mongodb.uri');
         const uri = config.mongodb.uri;
-        console.log('>>> DB: URI length:', uri ? uri.length : 'undefined');
+        // console.log('>>> DB: URI length:', uri ? uri.length : 'undefined');
         // Mask password for logging if present
         const maskedUri = uri.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@');
-        console.log('>>> DB: URI (masked):', maskedUri);
+        // console.log('>>> DB: URI (masked):', maskedUri);
 
-        console.log('>>> DB: calling logger.info');
+        // console.log('>>> DB: calling logger.info');
         logger.info({ uri: maskedUri }, 'Connecting to MongoDB...');
 
-        console.log('>>> DB: creating MongoClient');
+        // console.log('>>> DB: creating MongoClient');
         client = new MongoClient(uri, {
             // Simplified options based on successful test script
             maxPoolSize: 5,  // Reduced from 10
@@ -37,27 +37,27 @@ export async function connect() {
             socketTimeoutMS: 45000, // Added socket timeout
         });
 
-        // Add Debug Listeners
-        client.on('connectionReady', (e) => console.log('>>> DB EVENT: connectionReady', e.connectionId));
-        client.on('connectionClosed', (e) => console.log('>>> DB EVENT: connectionClosed', e.connectionId, e.reason));
-        client.on('connectionCheckOutStarted', (e) => console.log('>>> DB EVENT: connectionCheckOutStarted'));
-        client.on('connectionCheckOutFailed', (e) => console.log('>>> DB EVENT: connectionCheckOutFailed', e.reason));
-        client.on('serverHeartbeatStarted', (e) => console.log('>>> DB EVENT: serverHeartbeatStarted', e.connectionId));
-        client.on('serverHeartbeatSucceeded', (e) => console.log('>>> DB EVENT: serverHeartbeatSucceeded', e.connectionId));
-        client.on('serverHeartbeatFailed', (e) => console.log('>>> DB EVENT: serverHeartbeatFailed', e.connectionId, e.failure));
-        console.log('>>> DB: Event listeners attached');
+        // Add Debug Listeners (Disabled for production)
+        // client.on('connectionReady', (e) => console.log('>>> DB EVENT: connectionReady', e.connectionId));
+        // client.on('connectionClosed', (e) => console.log('>>> DB EVENT: connectionClosed', e.connectionId, e.reason));
+        // client.on('connectionCheckOutStarted', (e) => console.log('>>> DB EVENT: connectionCheckOutStarted'));
+        // client.on('connectionCheckOutFailed', (e) => console.log('>>> DB EVENT: connectionCheckOutFailed', e.reason));
+        // client.on('serverHeartbeatStarted', (e) => console.log('>>> DB EVENT: serverHeartbeatStarted', e.connectionId));
+        // client.on('serverHeartbeatSucceeded', (e) => console.log('>>> DB EVENT: serverHeartbeatSucceeded', e.connectionId));
+        // client.on('serverHeartbeatFailed', (e) => console.log('>>> DB EVENT: serverHeartbeatFailed', e.connectionId, e.failure));
+        // console.log('>>> DB: Event listeners attached');
 
-        console.log('>>> DB: awaiting client.connect()');
+        // console.log('>>> DB: awaiting client.connect()');
         await client.connect();
-        console.log('>>> DB: client.connect() returned');
+        // console.log('>>> DB: client.connect() returned');
 
         db = client.db(config.mongodb.database);
-        console.log('>>> DB: db instance created');
+        // console.log('>>> DB: db instance created');
 
         logger.info({ database: config.mongodb.database }, 'Connected to MongoDB');
         return db;
     } catch (error) {
-        console.error('>>> DB: ERROR in connect():', error.message);
+        // console.error('>>> DB: ERROR in connect():', error.message);
         logger.error({ error: error.message }, 'Failed to connect to MongoDB');
         throw error;
     }

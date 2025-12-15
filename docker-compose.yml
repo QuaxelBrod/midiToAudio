@@ -28,15 +28,15 @@ services:
       # Temporary files (optional, can use tmpfs for performance)
       - temp-data:/app/temp
 
-    # Resource limits (adjust based on your server)
+    # Resource limits (Optimized for 8 CPU / 32GB RAM Host)
     deploy:
       resources:
         limits:
-          cpus: '4'
-          memory: 4G
+          cpus: '7.5' # Allow nearly full CPU usage (leave 0.5 for OS)
+          memory: 16G # Generous limit (system has 32GB)
         reservations:
-          cpus: '2'
-          memory: 2G
+          cpus: '6' # Guarantee 1 core per process
+          memory: 8G # Guarantee plenty of RAM
 
     # Network configuration (if MongoDB is in same compose)
     networks:
@@ -49,9 +49,8 @@ services:
         max-size: "10m"
         max-file: "3"
 
-    # Start processing all MIDI files (no limit)
-    # Concurrency is configured here (overrides .env)
-    command: [ "node", "src/index.js" ]
+    # Start processing with 6 concurrent workers
+    command: [ "node", "src/index.js", "--concurrency", "6" ]
     # Named volumes
 volumes:
   temp-data:

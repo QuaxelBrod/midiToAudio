@@ -67,7 +67,7 @@ function extractTitle(document) {
         document.musicbrainz?.top?.title ||
         document.redacted?.title ||
         document.musicbrainz?.oldest?.title ||
-        document.midifile?.fileName?.replace(/\.mid$/i, '') ||
+        (document.midifile?.fileName ? document.midifile.fileName.toString().replace(/\.mid$/i, '') : undefined) ||
         'Unknown Title'
     );
 }
