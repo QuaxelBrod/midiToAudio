@@ -29,9 +29,12 @@ export async function connect() {
 
         console.log('>>> DB: creating MongoClient');
         client = new MongoClient(uri, {
-            maxPoolSize: 10,
-            minPoolSize: 2,
+            // Simplified options based on successful test script
+            maxPoolSize: 5,  // Reduced from 10
+            // minPoolSize: 2, // REMOVED: This can cause hangs on startup if connections aren't immediate
             serverSelectionTimeoutMS: 5000,
+            connectTimeoutMS: 5000, // Added explicit connect timeout
+            socketTimeoutMS: 45000, // Added socket timeout
         });
 
         console.log('>>> DB: awaiting client.connect()');
