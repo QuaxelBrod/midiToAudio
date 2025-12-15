@@ -55,6 +55,8 @@ export async function renderMidiToWav(midiBuffer, outputPath) {
             // FluidSynth command: fluidsynth -F output.wav soundfont.sf2 input.mid
             const args = [
                 '-F', outputPath,              // Fast render to file
+                '-o', 'audio.driver=file',     // Force file driver (prevent ALSA/Jack errors)
+                '-o', 'midi.driver=file',      // Force midi file driver
                 '-g', '1.0',                   // Gain
                 '-r', config.audio.sampleRate.toString(),  // Sample rate
                 '-T', 'wav',                   // Output type
@@ -73,10 +75,11 @@ export async function renderMidiToWav(midiBuffer, outputPath) {
                 stderr += data.toString();
             });
 
-            fluidsynth.on('close', (code) => {
+            fluidsynth.on('close', (code, signal) => {
                 if (code !== 0) {
-                    logger.error({ code, stderr }, 'FluidSynth failed');
-                    reject(new Error(`FluidSynth failed with code ${code}: ${stderr}`));
+                    const exitInfo = code !== null ? `code ${code}` : `signal ${signal}`;
+                    logger.error({ code, signal, stderr }, 'FluidSynth failed');
+                    reject(new Error(`FluidSynth failed with ${exitInfo}: ${stderr}`));
                 } else {
                     const duration = Date.now() - startTime;
                     logger.info({ duration, outputPath }, 'MIDI rendered successfully');
