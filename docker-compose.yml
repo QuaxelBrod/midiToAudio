@@ -32,10 +32,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '8'
+          cpus: '4'
           memory: 4G
         reservations:
-          cpus: '4'
+          cpus: '2'
           memory: 2G
 
     # Network configuration (if MongoDB is in same compose)
@@ -50,8 +50,8 @@ services:
         max-file: "3"
 
     # Start processing all MIDI files (no limit)
-    # Concurrency is configured in config/.env (CONCURRENCY)
-    command: [ "node", "src/index.js", "--concurrency", "8" ]
+    # Concurrency is configured here (overrides .env)
+    command: [ "node", "src/index.js", "--concurrency", "4" ]
     # Named volumes
 volumes:
   temp-data:
