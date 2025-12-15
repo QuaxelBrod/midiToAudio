@@ -10,17 +10,36 @@ try {
     // Directory already exists or cannot be created
 }
 
-// Direct synchronous logger for debugging Docker issues
+/**
+ * Creates a Pino logger instance
+ */
 const logger = pino({
-    level: config.logging.level || 'debug',
-    // transport: { ... } // DISABLED for debugging
-    // Use basic formatting or json
-    base: { pid: process.pid },
-    timestamp: pino.stdTimeFunctions.isoTime,
+    level: config.logging.level,
+    transport: {
+        targets: [
+            {
+                target: 'pino-pretty',
+                level: config.logging.level,
+                options: {
+                    colorize: true,
+                    translateTime: 'SYS:standard',
+                    ignore: 'pid,hostname',
+                },
+            },
+            {
+                target: 'pino/file',
+                level: config.logging.level,
+                options: {
+                    destination: config.logging.file,
+                    mkdir: true,
+                },
+            },
+        ],
+    },
 });
 
-// If we are in docker, we just want stdout logs mostly
-console.log('>>> LOGGER: Initialized in SYNC/DEBUG mode (no file writing)');
+// Remove temp debug logging
+// console.log('>>> LOGGER: Initialized in SYNC/DEBUG mode (no file writing)');
 
 /**
  * Creates a child logger with additional context
