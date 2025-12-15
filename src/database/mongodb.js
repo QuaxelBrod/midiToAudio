@@ -37,6 +37,16 @@ export async function connect() {
             socketTimeoutMS: 45000, // Added socket timeout
         });
 
+        // Add Debug Listeners
+        client.on('connectionReady', (e) => console.log('>>> DB EVENT: connectionReady', e.connectionId));
+        client.on('connectionClosed', (e) => console.log('>>> DB EVENT: connectionClosed', e.connectionId, e.reason));
+        client.on('connectionCheckOutStarted', (e) => console.log('>>> DB EVENT: connectionCheckOutStarted'));
+        client.on('connectionCheckOutFailed', (e) => console.log('>>> DB EVENT: connectionCheckOutFailed', e.reason));
+        client.on('serverHeartbeatStarted', (e) => console.log('>>> DB EVENT: serverHeartbeatStarted', e.connectionId));
+        client.on('serverHeartbeatSucceeded', (e) => console.log('>>> DB EVENT: serverHeartbeatSucceeded', e.connectionId));
+        client.on('serverHeartbeatFailed', (e) => console.log('>>> DB EVENT: serverHeartbeatFailed', e.connectionId, e.failure));
+        console.log('>>> DB: Event listeners attached');
+
         console.log('>>> DB: awaiting client.connect()');
         await client.connect();
         console.log('>>> DB: client.connect() returned');
