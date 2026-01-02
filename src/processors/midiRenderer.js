@@ -70,6 +70,14 @@ export async function renderMidiToWav(midiBuffer, outputPath) {
 
             const fluidsynth = spawn('fluidsynth', args);
 
+            // Timeout to prevent hanging forever (3 minutes)
+            const timeoutMs = 180000;
+            const timeoutTimer = setTimeout(() => {
+                logger.error({ midiPath, timeoutMs }, 'FluidSynth timed out, killing process');
+                fluidsynth.kill('SIGKILL');
+                reject(new Error(`FluidSynth timed out after ${timeoutMs}ms`));
+            }, timeoutMs);
+
             let stderr = '';
 
             fluidsynth.stderr.on('data', (data) => {
@@ -77,10 +85,22 @@ export async function renderMidiToWav(midiBuffer, outputPath) {
             });
 
             fluidsynth.on('close', (code, signal) => {
+                clearTimeout(timeoutTimer); // Clear timeout on exit
+
                 if (code !== 0) {
                     const exitInfo = code !== null ? `code ${code}` : `signal ${signal}`;
+                    const errorMsg = `FluidSynth failed with ${exitInfo}: ${stderr}`;
+                    // Only log if not already rejected by timeout (check if killed via SIGKILL might be ambiguous if not careful, but reject promise is once-only)
+                    // Promise settlement is handled by the first call (resolve/reject), subsequent calls are ignored.
+
+                    if (signal === 'SIGKILL' && stderr === '') {
+                        // Likely our timeout kill or OOM. If timeout, we already rejected.
+                        // But if OOM, we want to know.
+                        // We rely on rejection being idempotent.
+                    }
+
                     logger.error({ code, signal, stderr }, 'FluidSynth failed');
-                    reject(new Error(`FluidSynth failed with ${exitInfo}: ${stderr}`));
+                    reject(new Error(errorMsg));
                 } else {
                     const duration = Date.now() - startTime;
                     logger.info({ duration, outputPath }, 'MIDI rendered successfully');
@@ -89,6 +109,7 @@ export async function renderMidiToWav(midiBuffer, outputPath) {
             });
 
             fluidsynth.on('error', (error) => {
+                clearTimeout(timeoutTimer);
                 logger.error({ error: error.message }, 'FluidSynth process error');
                 reject(new Error(`FluidSynth process error: ${error.message}`));
             });
