@@ -51,7 +51,7 @@ const config = {
     batchSize: parseInt(process.env.BATCH_SIZE) || 10,
     concurrency: parseInt(process.env.CONCURRENCY) || 4,
     enableDuplicateCheck: process.env.ENABLE_DUPLICATE_CHECK !== 'false',
-    maxRetries: parseInt(process.env.MAX_RETRIES) || 2,
+    maxRetries: process.env.MAX_RETRIES !== undefined ? parseInt(process.env.MAX_RETRIES) : 2,
   },
 
   // Logging
