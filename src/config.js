@@ -52,6 +52,7 @@ const config = {
     concurrency: parseInt(process.env.CONCURRENCY) || 4,
     enableDuplicateCheck: process.env.ENABLE_DUPLICATE_CHECK !== 'false',
     maxRetries: process.env.MAX_RETRIES !== undefined ? parseInt(process.env.MAX_RETRIES) : 2,
+    retryFailed: process.env.RETRY_FAILED !== 'false',
   },
 
   // Logging

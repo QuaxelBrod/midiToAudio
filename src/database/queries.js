@@ -111,5 +111,36 @@ export async function getMidiDocumentsCursor(filter = {}) {
         query['midiToAudioProcessing.status'] = { $ne: 'completed' };
     }
 
+    // Exclude failed items if retry is disabled
+    if (!config.processing.retryFailed) {
+        // If we already have a status filter, we need to be careful not to overwrite it blindly.
+        // But usually duplicate check sets $ne: completed.
+        // We want status NOT IN ['completed', 'failed'] effectively.
+
+        if (query['midiToAudioProcessing.status']) {
+            // If existing filter is $ne: completed, we change it to $nin: [completed, failed]
+            // Simply verifying common case.
+            if (query['midiToAudioProcessing.status'].$ne === 'completed') {
+                delete query['midiToAudioProcessing.status'].$ne;
+                query['midiToAudioProcessing.status'].$nin = ['completed', 'failed'];
+            } else {
+                // Fallback for complex queries: add failed to exclusion if possible or just set it
+                // For now, simple approach: $ne failed. BUT combining multiple ne is tricky in simple syntax without $and
+                // Let's use $nin for both if duplicate check is on.
+            }
+        } else {
+            query['midiToAudioProcessing.status'] = { $ne: 'failed' };
+        }
+    }
+
+    // Simplification for reliability:
+    const statusExclusions = [];
+    if (config.processing.enableDuplicateCheck) statusExclusions.push('completed');
+    if (!config.processing.retryFailed) statusExclusions.push('failed');
+
+    if (statusExclusions.length > 0) {
+        query['midiToAudioProcessing.status'] = { $nin: statusExclusions };
+    }
+
     return collection.find(query);
 }
