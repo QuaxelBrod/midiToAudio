@@ -66,6 +66,12 @@ export async function normalizeAudio(inputPath, outputPath) {
             input_thresh: inputThresh,
         } = stats;
 
+        // Check for silence (input_i is -inf)
+        if (inputIntegrated === '-inf' || parseFloat(inputIntegrated) <= -70) {
+            logger.warn({ inputPath, stats }, 'Audio is silent or too quiet, skipping normalization');
+            throw new Error('Audio is silent (Input Integrated: -inf)');
+        }
+
         logger.info({
             currentLUFS: inputIntegrated,
             targetLUFS: config.audio.targetLUFS,

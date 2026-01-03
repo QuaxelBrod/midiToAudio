@@ -6,6 +6,7 @@ import { writeFileAtomic, fileExists } from './filesystem/fileWriter.js';
 import { updateProcessingStatus } from './database/queries.js';
 import { getTempFilePath, deleteTempFile } from './utils/tempFiles.js';
 import { createLogger } from './utils/logger.js';
+import config from './config.js';
 
 const logger = createLogger({ module: 'pipeline' });
 
@@ -170,13 +171,15 @@ export async function processMidiDocument(document) {
     }
 }
 
+
+
 /**
  * Processes a MIDI document with retry logic
  * @param {Object} document - MongoDB document
  * @param {number} maxRetries - Maximum number of retries
  * @returns {Promise<Object>} Processing result
  */
-export async function processMidiDocumentWithRetry(document, maxRetries = 2) {
+export async function processMidiDocumentWithRetry(document, maxRetries = config.processing.maxRetries) {
     let lastError;
 
     for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
