@@ -3,7 +3,7 @@ import { normalizeAudio } from './processors/audioNormalizer.js';
 import { encodeToMp3 } from './processors/mp3Encoder.js';
 import { generateOutputPath, generateUniquePath } from './filesystem/pathGenerator.js';
 import { writeFileAtomic, fileExists } from './filesystem/fileWriter.js';
-import { updateProcessingStatus } from './database/queries.js';
+import { updateProcessingStatus, updateProcessingStatusById } from './database/queries.js';
 import { getTempFilePath, deleteTempFile } from './utils/tempFiles.js';
 import { createLogger } from './utils/logger.js';
 import config from './config.js';
@@ -91,7 +91,7 @@ export async function processMidiDocument(document) {
     const startTime = Date.now();
 
     // Update status to processing
-    await updateProcessingStatus(hash, 'processing', {
+    await updateProcessingStatusById(document._id, 'processing', {
         startedAt: new Date(),
     });
 
@@ -129,7 +129,7 @@ export async function processMidiDocument(document) {
 
         // Update status to completed
         const totalDuration = Date.now() - startTime;
-        await updateProcessingStatus(hash, 'completed', {
+        await updateProcessingStatusById(document._id, 'completed', {
             completedAt: new Date(),
             outputPath,
             originalLUFS: normalizationResult.originalLUFS,
@@ -156,7 +156,7 @@ export async function processMidiDocument(document) {
         logger.error({ hash, error: error.message }, 'Pipeline failed');
 
         // Update status to failed
-        await updateProcessingStatus(hash, 'failed', {
+        await updateProcessingStatusById(document._id, 'failed', {
             failedAt: new Date(),
             error: error.message,
         });

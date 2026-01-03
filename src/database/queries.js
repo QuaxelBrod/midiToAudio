@@ -77,6 +77,36 @@ export async function updateProcessingStatus(hash, status, metadata = {}) {
 }
 
 /**
+ * Updates the processing status of a MIDI document by ID
+ * @param {Object} id - MongoDB document ID
+ * @param {string} status - Processing status ('processing', 'completed', 'failed')
+ * @param {Object} metadata - Additional metadata to store
+ * @returns {Promise<Object>} Update result
+ */
+export async function updateProcessingStatusById(id, status, metadata = {}) {
+    const collection = await getCollection();
+
+    const update = {
+        $set: {
+            'midiToAudioProcessing.status': status,
+            'midiToAudioProcessing.lastUpdated': new Date(),
+            ...Object.entries(metadata).reduce((acc, [key, value]) => {
+                acc[`midiToAudioProcessing.${key}`] = value;
+                return acc;
+            }, {}),
+        },
+    };
+
+    const result = await collection.updateOne(
+        { _id: id },
+        update
+    );
+
+    logger.debug({ id, status, matched: result.matchedCount }, 'Updated processing status by ID');
+    return result;
+}
+
+/**
  * Counts total MIDI documents matching filter
  * @param {Object} filter - Filter criteria
  * @returns {Promise<number>} Document count
