@@ -35,21 +35,51 @@ sudo apt-get install ffmpeg fluidsynth
 - FFmpeg: [ffmpeg.org](https://ffmpeg.org/download.html)
 - FluidSynth: [github.com/FluidSynth](https://github.com/FluidSynth/fluidsynth/releases)
 
-## Installation
+## Verwendung mit Docker (Empfohlen)
 
-1. **Repository klonen oder Projektverzeichnis erstellen**
+Die Ausführung mit Docker wird empfohlen, da alle Abhängigkeiten (FFmpeg, FluidSynth) bereits im Image enthalten sind.
 
-2. **Dependencies installieren:**
+### 1. Verzeichnisstruktur vorbereiten
+Stellen Sie sicher, dass folgende Struktur auf Ihrem Host existiert:
 ```bash
-npm install
+mkdir -p config data/output data/soundfonts data/logs
 ```
 
-3. **Umgebungsvariablen konfigurieren:**
+### 2. Konfiguration
+Ihre `.env` im Hauptverzeichnis wird automatisch in den Container gereicht.
+
+> [!IMPORTANT]
+> **Pfade in der .env für Docker:**
+> Wenn Sie Docker nutzen, müssen die Pfade in der `.env` auf die Verzeichnisse **innerhalb** des Containers zeigen:
+> - `SOUNDFONT_PATH=/app/soundfonts/IHR_SOUNDFONT.sf2`
+> - `OUTPUT_DIRECTORY=/app/output`
+
+Kopieren Sie Ihren Soundfont in den dafür vorgesehenen Ordner:
 ```bash
-cp .env.example .env
+cp IHR_SOUNDFONT.sf2 data/soundfonts/
 ```
 
-Bearbeiten Sie `.env` und passen Sie die Werte an:
+### 3. Starten
+Builden und starten Sie den Container:
+```bash
+docker compose up -d --build
+```
+
+### 4. Monitoring
+Logs einsehen:
+```bash
+docker compose logs -f
+```
+
+### 5. Skalierung (Optional)
+Um die Verarbeitung zu beschleunigen, können Sie mehrere Instanzen des Converters gleichzeitig starten. Das System verwendet einen atomaren "Claim"-Mechanismus, um sicherzustellen, dass jede Datei nur von einem Container bearbeitet wird.
+
+Starten von z.B. 3 Containern:
+```bash
+docker compose up -d --scale midi-converter=3
+```
+
+## Lokale Installation (Alternative)
 
 ```env
 # MongoDB Configuration

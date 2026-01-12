@@ -3,7 +3,7 @@ import { normalizeAudio } from './processors/audioNormalizer.js';
 import { encodeToMp3 } from './processors/mp3Encoder.js';
 import { generateOutputPath, generateUniquePath } from './filesystem/pathGenerator.js';
 import { writeFileAtomic, fileExists } from './filesystem/fileWriter.js';
-import { updateProcessingStatus, updateProcessingStatusById } from './database/queries.js';
+import { updateProcessingStatus, updateProcessingStatusById, claimMidiDocument } from './database/queries.js';
 import { getTempFilePath, deleteTempFile } from './utils/tempFiles.js';
 import { createLogger } from './utils/logger.js';
 import config from './config.js';
@@ -90,10 +90,12 @@ export async function processMidiDocument(document) {
     logger.info({ hash, bufferSize: midiBuffer.length }, 'Starting pipeline for MIDI document');
     const startTime = Date.now();
 
-    // Update status to processing
-    await updateProcessingStatusById(document._id, 'processing', {
-        startedAt: new Date(),
-    });
+    // Update status to processing - ATOMIC CLAIM
+    const claimed = await claimMidiDocument(document._id);
+    if (!claimed) {
+        logger.warn({ hash }, 'Document already claimed by another process, skipping');
+        return { success: false, reason: 'already_claimed' };
+    }
 
     let wavPath = null;
     let normalizedWavPath = null;

@@ -3,12 +3,12 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync } from 'fs';
 
-// Load environment variables
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
+
+// Load environment variables from project root
+dotenv.config({ path: join(projectRoot, '.env') });
 
 /**
  * Application configuration loaded from environment variables

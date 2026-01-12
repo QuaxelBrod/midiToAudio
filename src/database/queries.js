@@ -107,6 +107,42 @@ export async function updateProcessingStatusById(id, status, metadata = {}) {
 }
 
 /**
+ * Atomically claims a MIDI document for processing
+ * @param {Object} id - MongoDB document ID
+ * @returns {Promise<boolean>} True if successfully claimed
+ */
+export async function claimMidiDocument(id) {
+    const collection = await getCollection();
+
+    const result = await collection.findOneAndUpdate(
+        {
+            _id: id,
+            'midiToAudioProcessing.status': { $nin: ['completed', 'processing'] }
+        },
+        {
+            $set: {
+                'midiToAudioProcessing.status': 'processing',
+                'midiToAudioProcessing.lastUpdated': new Date(),
+                'midiToAudioProcessing.startedAt': new Date()
+            }
+        },
+        { returnDocument: 'after' }
+    );
+
+    // MongoDB Node Driver 6.x returns { value: doc } or just doc depending on version/method
+    // findOneAndUpdate usually returns the document or null if not found
+    const claimed = !!result;
+
+    if (claimed) {
+        logger.debug({ id }, 'Successfully claimed document');
+    } else {
+        logger.warn({ id }, 'Failed to claim document - already processing or completed');
+    }
+
+    return claimed;
+}
+
+/**
  * Counts total MIDI documents matching filter
  * @param {Object} filter - Filter criteria
  * @returns {Promise<number>} Document count
@@ -164,7 +200,7 @@ export async function getMidiDocumentsCursor(filter = {}) {
     }
 
     // Simplification for reliability:
-    const statusExclusions = [];
+    const statusExclusions = ['processing']; // Always skip processing
     if (config.processing.enableDuplicateCheck) statusExclusions.push('completed');
     if (!config.processing.retryFailed) statusExclusions.push('failed');
 

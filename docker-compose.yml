@@ -9,7 +9,7 @@ services:
     # Volumes for persistence
     volumes:
       # Configuration (.env file is read by dotenv in the application)
-      - ./config/.env:/app/.env:ro
+      - ./.env:/app/.env:ro
 
       # Debugging & Development (mount source code and debug scripts)
       - ./src:/app/src
@@ -32,8 +32,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '7' # Allow nearly full CPU usage (leave 0.5 for OS)
-          memory: 14G # Generous limit (system has 32GB)
+          cpus: '12' # Allow nearly full CPU usage (leave 0.5 for OS)
+          memory: '30G' # Generous limit (system has 32GB)
         reservations:
           cpus: '6' # Guarantee 1 core per process
           memory: 12G # Guarantee plenty of RAM
